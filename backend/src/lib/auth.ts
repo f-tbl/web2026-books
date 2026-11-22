@@ -4,7 +4,6 @@ import { db } from "./db";
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
-  trustedOrigins: [process.env.FRONTEND_URL ?? "http://localhost:5173"],
   emailAndPassword: { enabled: true },
   socialProviders: {
     github: {

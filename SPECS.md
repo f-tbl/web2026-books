@@ -93,18 +93,18 @@ Rutas de autenticación: `/api/auth/*` (manejadas por Better Auth).
 PORT=3000
 MONGODB_URI=
 BETTER_AUTH_SECRET=
-BETTER_AUTH_URL=http://localhost:3000
-FRONTEND_URL=http://localhost:5173
+BETTER_AUTH_URL=http://localhost:5173
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 ```
 
 ## 3. Deploy
 
-- Backend y frontend desplegados en **Render**.
+- App desplegada en **Render** (frontend y backend comparten URL).
 - Variables de entorno configuradas en el panel de Render (no en el repo).
-- CORS habilitado solo para `FRONTEND_URL`, con `credentials: true`.
-- Callback de GitHub OAuth apuntando a la URL de Render del backend.
+- Un solo servicio en Render: Express sirve el build de React (`frontend/dist`), mismo origen, sin CORS.
+- En local, el `vite.config` del frontend redirige `/api` a `http://localhost:3000` (proxy).
+- Callback de GitHub OAuth apuntando a `<URL de Render>/api/auth/callback/github`.
 
 ## 4. Checklist de entrega
 
