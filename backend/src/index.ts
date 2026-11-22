@@ -2,12 +2,14 @@ import express from "express";
 import path from "node:path";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import { booksRouter } from "./routes/books";
 
 const app = express();
 
 // Better Auth va antes de express.json(): lee el body por su cuenta.
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
+app.use("/api/books", booksRouter);
 
 // En producción Express sirve el build de React (mismo origen, sin CORS).
 // En local el frontend corre en Vite y redirige /api acá con su proxy.
