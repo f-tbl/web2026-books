@@ -3,6 +3,7 @@ import path from "node:path";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { booksRouter } from "./routes/books";
+import { usersRouter } from "./routes/users";
 
 const app = express();
 
@@ -10,6 +11,7 @@ const app = express();
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 app.use("/api/books", booksRouter);
+app.use("/api/users", usersRouter);
 
 // En producción Express sirve el build de React (mismo origen, sin CORS).
 // En local el frontend corre en Vite y redirige /api acá con su proxy.
