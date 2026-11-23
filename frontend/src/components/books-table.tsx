@@ -6,9 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 // Fechas guardadas a medianoche UTC: se muestran en UTC para no correr un día.
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('es-AR', { timeZone: 'UTC' })
 
-export function BooksTable({ books, actions }: { books: Book[]; actions?: (book: Book) => ReactNode }) {
+type Props = { books: Book[]; actions?: (book: Book) => ReactNode; emptyText?: string }
+
+export function BooksTable({ books, actions, emptyText = 'Todavía no hay libros cargados.' }: Props) {
   if (books.length === 0) {
-    return <p className="py-10 text-center text-muted-foreground">Todavía no hay libros cargados.</p>
+    return <p className="py-10 text-center text-muted-foreground">{emptyText}</p>
   }
   return (
     <Table>

@@ -1,18 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { booksApi } from '@/lib/api'
-import { BooksTable } from '@/components/books-table'
+import { booksApi, parseListSearch } from '@/lib/api'
+import { PaginatedBooks } from '@/components/paginated-books'
 
 export const Route = createFileRoute('/dashboard/')({
-  loader: () => booksApi.list(),
+  validateSearch: parseListSearch,
+  loaderDeps: ({ search }) => search,
+  loader: ({ deps }) => booksApi.list(deps),
   component: BooksList,
 })
 
 function BooksList() {
-  const books = Route.useLoaderData()
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
   return (
     <main className="flex flex-col gap-6 p-6">
       <h1 className="text-2xl font-semibold">Libros</h1>
-      <BooksTable books={books} />
+      <PaginatedBooks data={data} search={search} onSearch={(s) => navigate({ search: s })} />
     </main>
   )
 }
