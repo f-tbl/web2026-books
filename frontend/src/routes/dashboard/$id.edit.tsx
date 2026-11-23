@@ -1,17 +1,21 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { booksApi } from '@/lib/api'
-import { requireAdmin } from '@/lib/guards'
 import { BookForm } from '@/components/book-form'
 
 export const Route = createFileRoute('/dashboard/$id/edit')({
-  beforeLoad: requireAdmin,
-  loader: ({ params }) => booksApi.get(params.id),
+  loader: async ({ params, context: { user } }) => {
+    const book = await booksApi.get(params.id)
+    // Solo el dueño o un admin; el backend igual responde 403.
+    if (user.role !== 'admin' && book.ownerId !== user.id) throw redirect({ to: '/dashboard/mine' })
+    return book
+  },
   errorComponent: () => <p className="p-6 text-muted-foreground">No se encontró el libro.</p>,
   component: EditBook,
 })
 
 function EditBook() {
   const book = Route.useLoaderData()
+  const { user } = Route.useRouteContext()
   const navigate = useNavigate()
   return (
     <main className="flex flex-col gap-6 p-6">
@@ -20,7 +24,7 @@ function EditBook() {
         book={book}
         onSubmit={async (data) => {
           await booksApi.update(book._id, data)
-          await navigate({ to: '/dashboard/manage' })
+          await navigate({ to: user.role === 'admin' ? '/dashboard/manage' : '/dashboard/mine' })
         }}
       />
     </main>

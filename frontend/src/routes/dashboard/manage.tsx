@@ -1,42 +1,22 @@
-import { useState } from 'react'
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import { booksApi, type Book } from '@/lib/api'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { booksApi, parseListSearch } from '@/lib/api'
 import { requireAdmin } from '@/lib/guards'
-import { BooksTable } from '@/components/books-table'
+import { PaginatedBooks } from '@/components/paginated-books'
+import { BookActions } from '@/components/book-actions'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 
 export const Route = createFileRoute('/dashboard/manage')({
   beforeLoad: requireAdmin,
-  loader: () => booksApi.list(),
+  validateSearch: parseListSearch,
+  loaderDeps: ({ search }) => search,
+  loader: ({ deps }) => booksApi.list(deps),
   component: ManageBooks,
 })
 
 function ManageBooks() {
-  const books = Route.useLoaderData()
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-
-  async function remove(book: Book) {
-    setError(null)
-    try {
-      await booksApi.remove(book._id)
-      await router.invalidate()
-    } catch (err) {
-      setError(`No se pudo eliminar “${book.title}”: ${(err as Error).message}`)
-    }
-  }
-
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
   return (
     <main className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
@@ -45,48 +25,12 @@ function ManageBooks() {
           <Link to="/dashboard/new">Agregar libro</Link>
         </Button>
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-      <BooksTable
-        books={books}
-        actions={(book) => (
-          <>
-            <Button size="sm" variant="outline" asChild>
-              <Link to="/dashboard/$id/edit" params={{ id: book._id }}>
-                Editar
-              </Link>
-            </Button>
-            <DeleteButton book={book} onConfirm={() => remove(book)} />
-          </>
-        )}
+      <PaginatedBooks
+        data={data}
+        search={search}
+        onSearch={(s) => navigate({ search: s })}
+        actions={(book) => <BookActions book={book} />}
       />
     </main>
-  )
-}
-
-function DeleteButton({ book, onConfirm }: { book: Book; onConfirm: () => void }) {
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button size="sm" variant="destructive">
-          Eliminar
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Eliminar “{book.title}”?</AlertDialogTitle>
-          <AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            Eliminar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   )
 }
