@@ -9,3 +9,13 @@ export const bookSchema = z.object({
 });
 
 export type BookInput = z.infer<typeof bookSchema>;
+
+// Query de GET /api/books: valores inválidos caen al default en vez de dar 400.
+export const SORT_FIELDS = ["title", "author", "pages", "publishedAt", "createdAt"] as const;
+export const listQuerySchema = z.object({
+  q: z.string().trim().max(100).catch(""),
+  sort: z.enum(SORT_FIELDS).catch("createdAt"),
+  order: z.enum(["asc", "desc"]).catch("desc"),
+  page: z.coerce.number().int().min(1).catch(1),
+  limit: z.coerce.number().int().min(1).max(50).catch(10),
+});
