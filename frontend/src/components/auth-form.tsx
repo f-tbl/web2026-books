@@ -1,4 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -12,9 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FieldError } from "@/components/field-error";
 import { ModeToggle } from "@/components/mode-toggle";
 
 const AFTER_LOGIN = "/dashboard";
+
+// El nombre solo se pide al registrarse; en el login queda vacío y no se valida.
+const schemaFor = (isLogin: boolean) =>
+  z.object({
+    name: isLogin ? z.string() : z.string().trim().min(1, "El nombre es obligatorio"),
+    email: z.email("Email inválido"),
+    password: z.string().min(8, "Mínimo 8 caracteres"),
+  });
+type Values = z.infer<ReturnType<typeof schemaFor>>;
 
 // Lucide 1.x ya no trae íconos de marcas: logo oficial de GitHub (Octicons, mark-github).
 function GithubIcon() {
@@ -27,26 +39,22 @@ function GithubIcon() {
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const isLogin = mode === "login";
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<Values>({
+    resolver: zodResolver(schemaFor(isLogin)),
+    defaultValues: { name: "", email: "", password: "" },
+  });
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const email = String(form.get("email"));
-    const password = String(form.get("password"));
-    setLoading(true);
-    setError(null);
+  async function onSubmit({ name, email, password }: Values) {
     const { error } = isLogin
       ? await authClient.signIn.email({ email, password })
-      : await authClient.signUp.email({
-          name: String(form.get("name")),
-          email,
-          password,
-        });
-    setLoading(false);
-    if (error) return setError(error.message ?? "Ocurrió un error");
+      : await authClient.signUp.email({ name, email, password });
+    if (error) return setError("root", { message: error.message ?? "Ocurrió un error" });
     navigate({ to: AFTER_LOGIN });
   }
 
@@ -73,41 +81,39 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
               {!isLogin && (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="name">Nombre</Label>
-                  <Input id="name" name="name" required autoComplete="name" />
+                  <Input id="name" autoComplete="name" aria-invalid={!!errors.name} {...register("name")} />
+                  <FieldError error={errors.name} />
                 </div>
               )}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  required
                   autoComplete="email"
+                  aria-invalid={!!errors.email}
+                  {...register("email")}
                 />
+                <FieldError error={errors.email} />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
                   id="password"
-                  name="password"
                   type="password"
-                  required
-                  minLength={8}
                   autoComplete={isLogin ? "current-password" : "new-password"}
+                  aria-invalid={!!errors.password}
+                  {...register("password")}
                 />
+                <FieldError error={errors.password} />
               </div>
-              {error && (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              )}
-              <Button type="submit" disabled={loading}>
-                {loading ? "Enviando…" : isLogin ? "Ingresar" : "Registrarme"}
+              <FieldError error={errors.root} />
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando…" : isLogin ? "Ingresar" : "Registrarme"}
               </Button>
             </form>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
