@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { authClient } from '@/lib/auth-client'
 import { AppSidebar } from '@/components/app-sidebar'
+import { ModeToggle } from '@/components/mode-toggle'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
@@ -31,6 +32,7 @@ function DashboardLayout() {
           <span className="font-semibold">Biblioteca</span>
           <div className="flex items-center gap-3 text-sm">
             {user.name} <Badge variant="secondary">{user.role}</Badge>
+            <ModeToggle />
             <Button size="sm" variant="outline" onClick={signOut}>
               Cerrar sesión
             </Button>
@@ -48,6 +50,9 @@ function DashboardLayout() {
         <header className="flex items-center gap-2 border-b px-4 py-3">
           <SidebarTrigger />
           <Badge variant="secondary">admin</Badge>
+          <div className="ml-auto">
+            <ModeToggle />
+          </div>
         </header>
         <Outlet />
       </SidebarInset>

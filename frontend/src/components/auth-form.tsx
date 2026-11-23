@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ModeToggle } from '@/components/mode-toggle'
 
 const AFTER_LOGIN = '/dashboard'
 
@@ -34,7 +35,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   }
 
   return (
-    <main className="flex justify-center p-6 pt-16">
+    <main className="relative flex justify-center p-6 pt-16">
+      <div className="absolute top-3 right-3">
+        <ModeToggle />
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</CardTitle>
