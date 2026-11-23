@@ -14,7 +14,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardManageRouteImport } from './routes/dashboard/manage'
+import { Route as DashboardMineRouteImport } from './routes/dashboard/mine'
 import { Route as DashboardNewRouteImport } from './routes/dashboard/new'
+import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as DashboardIdEditRouteImport } from './routes/dashboard/$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -42,9 +44,19 @@ const DashboardManageRoute = DashboardManageRouteImport.update({
   path: '/manage',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardMineRoute = DashboardMineRouteImport.update({
+  id: '/mine',
+  path: '/mine',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardNewRoute = DashboardNewRouteImport.update({
   id: '/new',
   path: '/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUsersRoute = DashboardUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardIdEditRoute = DashboardIdEditRouteImport.update({
@@ -58,7 +70,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/register': typeof RegisterRoute
   '/dashboard/manage': typeof DashboardManageRoute
+  '/dashboard/mine': typeof DashboardMineRoute
   '/dashboard/new': typeof DashboardNewRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/$id/edit': typeof DashboardIdEditRoute
 }
@@ -66,7 +80,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/register': typeof RegisterRoute
   '/dashboard/manage': typeof DashboardManageRoute
+  '/dashboard/mine': typeof DashboardMineRoute
   '/dashboard/new': typeof DashboardNewRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/$id/edit': typeof DashboardIdEditRoute
 }
@@ -76,7 +92,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/register': typeof RegisterRoute
   '/dashboard/manage': typeof DashboardManageRoute
+  '/dashboard/mine': typeof DashboardMineRoute
   '/dashboard/new': typeof DashboardNewRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/$id/edit': typeof DashboardIdEditRoute
 }
@@ -87,7 +105,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/register'
     | '/dashboard/manage'
+    | '/dashboard/mine'
     | '/dashboard/new'
+    | '/dashboard/users'
     | '/dashboard/'
     | '/dashboard/$id/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -95,7 +115,9 @@ export interface FileRouteTypes {
     | '/'
     | '/register'
     | '/dashboard/manage'
+    | '/dashboard/mine'
     | '/dashboard/new'
+    | '/dashboard/users'
     | '/dashboard'
     | '/dashboard/$id/edit'
   id:
@@ -104,7 +126,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/register'
     | '/dashboard/manage'
+    | '/dashboard/mine'
     | '/dashboard/new'
+    | '/dashboard/users'
     | '/dashboard/'
     | '/dashboard/$id/edit'
   fileRoutesById: FileRoutesById
@@ -152,11 +176,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardManageRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/mine': {
+      id: '/dashboard/mine'
+      path: '/mine'
+      fullPath: '/dashboard/mine'
+      preLoaderRoute: typeof DashboardMineRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/new': {
       id: '/dashboard/new'
       path: '/new'
       fullPath: '/dashboard/new'
       preLoaderRoute: typeof DashboardNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/users': {
+      id: '/dashboard/users'
+      path: '/users'
+      fullPath: '/dashboard/users'
+      preLoaderRoute: typeof DashboardUsersRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/$id/edit': {
@@ -171,14 +209,18 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardManageRoute: typeof DashboardManageRoute
+  DashboardMineRoute: typeof DashboardMineRoute
   DashboardNewRoute: typeof DashboardNewRoute
+  DashboardUsersRoute: typeof DashboardUsersRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardIdEditRoute: typeof DashboardIdEditRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardManageRoute: DashboardManageRoute,
+  DashboardMineRoute: DashboardMineRoute,
   DashboardNewRoute: DashboardNewRoute,
+  DashboardUsersRoute: DashboardUsersRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardIdEditRoute: DashboardIdEditRoute,
 }

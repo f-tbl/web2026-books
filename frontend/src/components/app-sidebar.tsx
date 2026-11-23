@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { BookPlus, Library, LogOut, Settings2 } from 'lucide-react'
+import { BookPlus, BookUser, Library, LogOut, Settings2, Users } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -13,35 +13,55 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
-const items = [
-  { to: '/dashboard', label: 'Libros', icon: Library },
-  { to: '/dashboard/new', label: 'Agregar libro', icon: BookPlus },
-  { to: '/dashboard/manage', label: 'Administrar', icon: Settings2 },
+const groups = [
+  {
+    label: 'Biblioteca',
+    adminOnly: false,
+    items: [
+      { to: '/dashboard', label: 'Libros', icon: Library },
+      { to: '/dashboard/mine', label: 'Mis libros', icon: BookUser },
+      { to: '/dashboard/new', label: 'Agregar libro', icon: BookPlus },
+    ],
+  },
+  {
+    label: 'Panel de admin',
+    adminOnly: true,
+    items: [
+      { to: '/dashboard/manage', label: 'Administrar libros', icon: Settings2 },
+      { to: '/dashboard/users', label: 'Usuarios', icon: Users },
+    ],
+  },
 ] as const
 
-export function AppSidebar({ userName, onSignOut }: { userName: string; onSignOut: () => void }) {
+type Props = { userName: string; isAdmin: boolean; onSignOut: () => void }
+
+export function AppSidebar({ userName, isAdmin, onSignOut }: Props) {
   const pathname = useLocation({ select: (l) => l.pathname })
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-3 font-semibold">Biblioteca</SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Panel de admin</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map(({ to, label, icon: Icon }) => (
-                <SidebarMenuItem key={to}>
-                  <SidebarMenuButton asChild isActive={pathname === to}>
-                    <Link to={to}>
-                      <Icon />
-                      <span>{label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groups
+          .filter((g) => isAdmin || !g.adminOnly)
+          .map((group) => (
+            <SidebarGroup key={group.label}>
+              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map(({ to, label, icon: Icon }) => (
+                    <SidebarMenuItem key={to}>
+                      <SidebarMenuButton asChild isActive={pathname === to}>
+                        <Link to={to}>
+                          <Icon />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
