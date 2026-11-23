@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { authClient } from '@/lib/auth-client'
 import { AppSidebar } from '@/components/app-sidebar'
@@ -5,7 +6,7 @@ import { ModeToggle } from '@/components/mode-toggle'
 import { Badge } from '@/components/ui/badge'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 
-// Layout de /dashboard/*: exige sesión. La sidebar muestra el panel de admin solo a admins.
+// Layout de /dashboard/*: beforeLoad exige sesión al entrar; useSession la mantiene al día después.
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
     const { data } = await authClient.getSession()
@@ -16,17 +17,20 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function DashboardLayout() {
-  const { user } = Route.useRouteContext()
+  const { user: initialUser } = Route.useRouteContext()
+  const { data: session, isPending } = authClient.useSession()
   const navigate = useNavigate()
 
-  async function signOut() {
-    await authClient.signOut()
-    navigate({ to: '/' })
-  }
+  // useSession se actualiza solo (signOut, sesión vencida, cierre en otra pestaña): sin sesión, al login.
+  useEffect(() => {
+    if (!isPending && !session) navigate({ to: '/' })
+  }, [isPending, session, navigate])
+
+  const user = session?.user ?? initialUser
 
   return (
     <SidebarProvider>
-      <AppSidebar userName={user.name} isAdmin={user.role === 'admin'} onSignOut={signOut} />
+      <AppSidebar userName={user.name} isAdmin={user.role === 'admin'} onSignOut={() => authClient.signOut()} />
       <SidebarInset>
         <header className="flex items-center gap-2 border-b px-4 py-3">
           <SidebarTrigger />
