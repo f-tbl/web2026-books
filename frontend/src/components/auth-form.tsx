@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const AFTER_LOGIN = '/books'
+const AFTER_LOGIN = '/dashboard'
 
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const navigate = useNavigate()
