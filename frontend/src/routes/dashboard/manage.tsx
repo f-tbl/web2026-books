@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { booksApi, parseListSearch } from '@/lib/api'
+import { booksApi, canEdit, parseListSearch } from '@/lib/api'
 import { requireAdmin } from '@/lib/guards'
 import { PaginatedBooks } from '@/components/paginated-books'
 import { BookActions } from '@/components/book-actions'
@@ -17,6 +17,7 @@ function ManageBooks() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { user } = Route.useRouteContext()
   return (
     <main className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
@@ -29,7 +30,7 @@ function ManageBooks() {
         data={data}
         search={search}
         onSearch={(s) => navigate({ search: s })}
-        actions={(book) => <BookActions book={book} />}
+        actions={(book) => canEdit(book, user.id) && <BookActions book={book} />}
       />
     </main>
   )

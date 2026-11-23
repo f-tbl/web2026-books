@@ -1,11 +1,16 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { booksApi } from '@/lib/api'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { booksApi, canEdit } from '@/lib/api'
 import { requireAdmin } from '@/lib/guards'
 import { BookForm } from '@/components/book-form'
 
 export const Route = createFileRoute('/dashboard/$id/edit')({
   beforeLoad: requireAdmin,
-  loader: ({ params }) => booksApi.get(params.id),
+  loader: async ({ params, context: { user } }) => {
+    const book = await booksApi.get(params.id)
+    // El backend igual responde 403 si no es suyo.
+    if (!canEdit(book, user.id)) throw redirect({ to: '/dashboard/manage' })
+    return book
+  },
   errorComponent: () => <p className="p-6 text-muted-foreground">No se encontró el libro.</p>,
   component: EditBook,
 })

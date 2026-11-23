@@ -5,9 +5,13 @@ export type Book = {
   pages: number
   publishedAt: string
   available: boolean
+  ownerId?: string
 }
 
-export type BookInput = Omit<Book, '_id'>
+export type BookInput = Omit<Book, '_id' | 'ownerId'>
+
+// Misma regla que el backend (findOwned): el dueño, o cualquiera si el libro es viejo y no tiene dueño.
+export const canEdit = (book: Book, userId: string) => !book.ownerId || book.ownerId === userId
 
 export type User = { _id: string; name: string; email: string; role: 'user' | 'admin' }
 

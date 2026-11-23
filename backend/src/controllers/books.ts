@@ -35,27 +35,42 @@ export async function getBook(req: IdReq, res: Response) {
 
 export async function createBook(req: Request, res: Response) {
   const now = new Date();
-  const doc = { ...req.body, createdAt: now, updatedAt: now };
+  const doc = { ...req.body, ownerId: res.locals.user.id, createdAt: now, updatedAt: now };
   const { insertedId } = await books.insertOne(doc);
   res.status(201).json({ _id: insertedId, ...doc });
 }
 
-export async function updateBook(req: IdReq, res: Response) {
+// Cada admin modifica solo los libros que cargó. Los viejos sin ownerId los puede tocar cualquier admin.
+// Responde 404/403 y devuelve null si no se puede.
+async function findOwned(req: IdReq, res: Response) {
   const _id = toId(req.params.id);
-  const updated =
-    _id &&
-    (await books.findOneAndUpdate(
-      { _id },
-      { $set: { ...req.body, updatedAt: new Date() } },
-      { returnDocument: "after" },
-    ));
+  const book = _id && (await books.findOne({ _id }));
+  if (!book) {
+    notFound(res);
+    return null;
+  }
+  if (book.ownerId && book.ownerId !== res.locals.user.id) {
+    res.status(403).json({ error: "Solo podés modificar los libros que cargaste" });
+    return null;
+  }
+  return book;
+}
+
+export async function updateBook(req: IdReq, res: Response) {
+  const book = await findOwned(req, res);
+  if (!book) return;
+  const updated = await books.findOneAndUpdate(
+    { _id: book._id },
+    { $set: { ...req.body, updatedAt: new Date() } },
+    { returnDocument: "after" },
+  );
   if (!updated) return notFound(res);
   res.json(updated);
 }
 
 export async function deleteBook(req: IdReq, res: Response) {
-  const _id = toId(req.params.id);
-  const { deletedCount } = _id ? await books.deleteOne({ _id }) : { deletedCount: 0 };
-  if (!deletedCount) return notFound(res);
+  const book = await findOwned(req, res);
+  if (!book) return;
+  await books.deleteOne({ _id: book._id });
   res.status(204).end();
 }
