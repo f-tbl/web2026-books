@@ -5,10 +5,9 @@ export type Book = {
   pages: number
   publishedAt: string
   available: boolean
-  ownerId?: string
 }
 
-export type BookInput = Omit<Book, '_id' | 'ownerId'>
+export type BookInput = Omit<Book, '_id'>
 
 export type User = { _id: string; name: string; email: string; role: 'user' | 'admin' }
 
@@ -61,7 +60,6 @@ const qs = (s: ListSearch) =>
 
 export const booksApi = {
   list: (s: ListSearch) => request<Page<Book>>(`/books?${qs(s)}`),
-  mine: (s: ListSearch) => request<Page<Book>>(`/books/mine?${qs(s)}`),
   get: (id: string) => request<Book>(`/books/${id}`),
   create: (data: BookInput) => request<Book>('/books', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: BookInput) =>

@@ -8,7 +8,6 @@ export interface Book {
   pages: number;
   publishedAt: Date;
   available: boolean;
-  ownerId?: string; // id del usuario de Better Auth que lo cargó (los libros viejos no tienen)
   createdAt: Date;
   updatedAt: Date;
 }

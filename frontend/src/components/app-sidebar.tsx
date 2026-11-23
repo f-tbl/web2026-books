@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { BookPlus, BookUser, Library, LogOut, Settings2, Users } from 'lucide-react'
+import { BookPlus, Library, LogOut, Settings2, Users } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -19,8 +19,6 @@ const groups = [
     adminOnly: false,
     items: [
       { to: '/dashboard', label: 'Libros', icon: Library },
-      { to: '/dashboard/mine', label: 'Mis libros', icon: BookUser },
-      { to: '/dashboard/new', label: 'Agregar libro', icon: BookPlus },
     ],
   },
   {
@@ -28,6 +26,7 @@ const groups = [
     adminOnly: true,
     items: [
       { to: '/dashboard/manage', label: 'Administrar libros', icon: Settings2 },
+      { to: '/dashboard/new', label: 'Agregar libro', icon: BookPlus },
       { to: '/dashboard/users', label: 'Usuarios', icon: Users },
     ],
   },

@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { booksApi } from '@/lib/api'
+import { requireAdmin } from '@/lib/guards'
 import { BookForm } from '@/components/book-form'
 
 export const Route = createFileRoute('/dashboard/new')({
+  beforeLoad: requireAdmin,
   component: NewBook,
 })
 
@@ -14,7 +16,7 @@ function NewBook() {
       <BookForm
         onSubmit={async (data) => {
           await booksApi.create(data)
-          await navigate({ to: '/dashboard/mine' })
+          await navigate({ to: '/dashboard/manage' })
         }}
       />
     </main>
