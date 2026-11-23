@@ -1,14 +1,12 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 export const Route = createRootRoute({
   component: () => (
-    <div className="min-h-svh">
-      <header className="flex gap-4 border-b px-6 py-3">
-        <Link to="/" className="font-semibold">
-          Biblioteca
-        </Link>
-      </header>
-      <Outlet />
-    </div>
+    <TooltipProvider>
+      <div className="min-h-svh">
+        <Outlet />
+      </div>
+    </TooltipProvider>
   ),
 })

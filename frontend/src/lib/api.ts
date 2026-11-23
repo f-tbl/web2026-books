@@ -26,6 +26,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const booksApi = {
   list: () => request<Book[]>(''),
+  get: (id: string) => request<Book>(`/${id}`),
   create: (data: BookInput) => request<Book>('', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: BookInput) =>
     request<Book>(`/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
